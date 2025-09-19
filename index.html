@@ -12,56 +12,80 @@
     }
     .box {
       background: white;
-      padding: 20px;
+      padding: 20px 30px;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       display: inline-block;
     }
-    input {
+    input, select, button {
       padding: 8px;
       font-size: 16px;
-      margin-right: 10px;
-    }
-    button {
-      padding: 8px 16px;
-      font-size: 16px;
-      cursor: pointer;
+      margin: 5px;
     }
     h1 {
       margin-top: 20px;
-      font-size: 2em;
+      font-size: 2.5em;
+    }
+    .small {
+      font-size: 1.2em;
+      color: #555;
     }
   </style>
 </head>
 <body>
   <div class="box">
     <h2>Live Salary Counter</h2>
-    <input type="number" id="wage" placeholder="Hourly wage ($)" />
+    <input type="number" id="wage" placeholder="Hourly wage" />
+    <select id="currency">
+      <option value="USD">$ USD</option>
+      <option value="EUR">€ EUR</option>
+    </select>
     <button onclick="startCounter()">Start</button>
-    <h1 id="earnings">$0.00</h1>
+    <h1 id="earnings">$0.0000</h1>
+    <div class="small" id="perSecond">($0.0000 / sec)</div>
   </div>
 
   <script>
     let timer = null;
     let earned = 0;
     let perSecond = 0;
+    let symbol = "$";
+
+    // Fake conversion rate for simplicity
+    const conversionRate = {
+      "USD": 1,
+      "EUR": 0.9
+    };
 
     function startCounter() {
       const wage = parseFloat(document.getElementById("wage").value);
+      const currency = document.getElementById("currency").value;
+      
       if (isNaN(wage) || wage <= 0) {
         alert("Please enter a valid hourly wage.");
         return;
       }
 
+      symbol = (currency === "USD") ? "$" : "€";
+
+      // Apply fake conversion
+      const wageConverted = wage * conversionRate[currency];
+
       earned = 0;
-      perSecond = wage / 3600; // hourly → per second
-      document.getElementById("earnings").textContent = "$0.00";
+      perSecond = wageConverted / 3600; // hourly → per second
+      updateDisplay();
 
       if (timer) clearInterval(timer);
       timer = setInterval(() => {
         earned += perSecond;
-        document.getElementById("earnings").textContent = "$" + earned.toFixed(2);
+        updateDisplay();
       }, 1000);
+    }
+
+    function updateDisplay() {
+      document.getElementById("earnings").textContent = symbol + earned.toFixed(4);
+      document.getElementById("perSecond").textContent = 
+        `(${symbol}${perSecond.toFixed(4)} / sec)`;
     }
   </script>
 </body>
